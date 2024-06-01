@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+    --ballSize: 80px;
+    cursor: auto;
+}
+
+.floor{
+    position: fixed;
+    top: 600px;
+    height: 0px;
+    width: 100vw;
+    border-bottom: 20px solid black;
+    align-items: center;
+    justify-content: center;
+}
+
+.ball {
+    display: none;
+    position: absolute;
+    height: var(--ballSize);
+    width: var(--ballSize);
+    background-color: blue;
+    border-radius: 50%;
+    cursor: url('./open_cursor.png'), auto;
+}
