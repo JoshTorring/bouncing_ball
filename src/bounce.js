@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,99 +35,161 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 var ball = document.getElementById("ball");
+var root = document.documentElement;
 var sleep = function (delay) { return new Promise(function (resolve) { return setTimeout(resolve, delay); }); };
+var ballSize = 50;
+root.style.setProperty("--ballSize", "".concat(ballSize, "px"));
 var mouseOnBall = false;
 var mouseX = 0;
 var mouseY = 0;
 var mouseDown = false;
+var ballBouncing = false;
 //document.addEventListener("mousemove", (event) => {console.log("mouse moved to: x:", event.clientX, "y:", event.clientY)});
 //ball.addEventListener("mouseover", (event) => mousePos(event));
 ball.addEventListener("mouseenter", function (event) {
     mouseOnBall = true;
+    console.log("Mouse on ball");
 });
 ball.addEventListener("mouseout", function (event) {
     mouseOnBall = false;
+    console.log("mouse off ball");
 });
-ball.addEventListener("mousedown", function (event) {
-    ball.style.cursor = "url('./grab_cursor.png'), auto";
-    if (mouseOnBall) {
-        while (mouseDown) {
-            ballDrag();
+document.addEventListener("mousedown", function (event) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                ball.style.cursor = "url('./grab_cursor.png'), auto";
+                console.log("mouse down event");
+                mouseDown = true;
+                if (!(mouseOnBall && !ballBouncing)) return [3 /*break*/, 3];
+                console.log("while on ball");
+                _a.label = 1;
+            case 1:
+                if (!(mouseDown && !ballBouncing)) return [3 /*break*/, 3];
+                console.log("attempting to call ballDrag");
+                return [4 /*yield*/, ballDrag()];
+            case 2:
+                _a.sent();
+                return [3 /*break*/, 1];
+            case 3: return [2 /*return*/];
         }
-    }
-});
-ball.addEventListener("mouseup", function (event) {
+    });
+}); });
+document.addEventListener("mouseup", function (event) {
+    console.log("mouse up event");
     ball.style.cursor = "url('./open_cursor.png'), auto";
     mouseDown = false;
+    mouseOnBall = false;
+    if (!ballBouncing) {
+        ballBouncing = true;
+        bouncingBall(mouseX, 600 - mouseY);
+    }
 });
 onmousemove = function (e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
 };
-function ballDrag() {
-}
-function bouncingBall() {
-    var gravity = 9.81;
-    var dragAir = 0.1;
-    var dragGround = 1;
-    var ballDampening = 0.8;
-    var timeInterval = 0.2;
-    var timePeriod = timeInterval * 100;
-    var ballSpeedY = 0;
-    var ballSpeedX = 5;
-    var ballX = 100;
-    var ballY = 300;
-    var ballStopped = false;
-    ball.style.bottom = "".concat(ballY, "px");
-    ball.style.left = "".concat(ballX, "px");
-    ball.style.display = 'none';
-    updateBall(ballX, ballY, timePeriod);
-    ball.style.display = 'block';
-    while (!ballStopped) {
-        if (ballY > 0) {
-            ballSpeedY = changeBallSpeed(ballSpeedY, gravity, timeInterval);
-            ballY = changeBallPos(ballSpeedY, ballY);
-            ballSpeedX = changeBallSpeed(ballSpeedX, dragAir, timeInterval);
-            ballX = changeBallPos(ballSpeedX, ballX);
-            updateBall(ballX, ballY, timePeriod);
-            console.log("New Ball Position:", ballX, ballY);
-            console.log("New Ball Velocity:" + (Math.sqrt((Math.pow(ballSpeedX, 2) + Math.pow(ballSpeedY, 2)))).toString());
+var ballDrag = function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                console.log("ballDrag called at:", mouseX, mouseY);
+                ball.style.left = "".concat(mouseX, "px");
+                ball.style.bottom = "".concat(600 - mouseY, "px");
+                return [4 /*yield*/, sleep(10)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
         }
-        else if (ballY <= 0 && ballSpeedY < -(timeInterval * 15)) {
-            ballSpeedY = -ballSpeedY * ballDampening;
-            console.log("ball bounced!");
-            for (var i = 0; i < 2; i++) {
+    });
+}); };
+var bouncingBall = function (ballX, ballY) { return __awaiter(void 0, void 0, void 0, function () {
+    var gravity, dragAir, dragGround, ballDampening, timeInterval, timePeriod, ballSpeedY, ballSpeedX, ballStopped, i;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                gravity = 9.81;
+                dragAir = 0.1;
+                dragGround = 1;
+                ballDampening = 0.8;
+                timeInterval = 0.2;
+                timePeriod = timeInterval * 100;
+                ballSpeedY = 0;
+                ballSpeedX = 0;
+                ballStopped = false;
+                ball.style.bottom = "".concat(ballY, "px");
+                ball.style.left = "".concat(ballX, "px");
+                _a.label = 1;
+            case 1:
+                if (!!ballStopped) return [3 /*break*/, 13];
+                if (!(ballY > (ballSize / 2))) return [3 /*break*/, 3];
                 ballSpeedY = changeBallSpeed(ballSpeedY, gravity, timeInterval);
                 ballY = changeBallPos(ballSpeedY, ballY);
+                if (ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval) {
+                    ballSpeedX = changeBallSpeed(ballSpeedX, dragAir, timeInterval);
+                    ballX = changeBallPos(ballSpeedX, ballX);
+                }
+                return [4 /*yield*/, updateBall(ballX, ballY, timePeriod)];
+            case 2:
+                _a.sent();
+                console.log("New Ball Position:", ballX, ballY);
+                console.log("New Ball Velocity:" + (Math.sqrt((Math.pow(ballSpeedX, 2) + Math.pow(ballSpeedY, 2)))).toString());
+                return [3 /*break*/, 12];
+            case 3:
+                if (!(ballY <= (ballSize / 2) && ballSpeedY < -(timeInterval * 15))) return [3 /*break*/, 8];
+                ballSpeedY = -ballSpeedY * ballDampening;
+                console.log("ball bounced!");
+                i = 0;
+                _a.label = 4;
+            case 4:
+                if (!(i < 2)) return [3 /*break*/, 7];
+                ballSpeedY = changeBallSpeed(ballSpeedY, gravity, timeInterval);
+                ballY = changeBallPos(ballSpeedY, ballY);
+                if (ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval) {
+                    ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, timeInterval);
+                    ballX = changeBallPos(ballSpeedX, ballX);
+                }
+                return [4 /*yield*/, updateBall(ballX, ballY, timePeriod)];
+            case 5:
+                _a.sent();
+                _a.label = 6;
+            case 6:
+                i++;
+                return [3 /*break*/, 4];
+            case 7: return [3 /*break*/, 12];
+            case 8:
+                if (!(ballY <= (ballSize / 2) && ballSpeedY >= -(timeInterval * 15))) return [3 /*break*/, 12];
+                ballSpeedY = 0;
+                ball.style.bottom = '0px';
+                updateBall(ballX, ballY, timePeriod);
+                console.log("Ball stopped bouncing");
+                _a.label = 9;
+            case 9:
+                if (!(ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval)) return [3 /*break*/, 11];
                 ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, timeInterval);
                 ballX = changeBallPos(ballSpeedX, ballX);
-                updateBall(ballX, ballY, timePeriod);
-            }
+                return [4 /*yield*/, updateBall(ballX, ballY, timePeriod)];
+            case 10:
+                _a.sent();
+                return [3 /*break*/, 9];
+            case 11:
+                ballStopped = true;
+                console.log("ball stopped moving");
+                ballBouncing = false;
+                _a.label = 12;
+            case 12: return [3 /*break*/, 1];
+            case 13: return [2 /*return*/];
         }
-        else if (ballY <= 0 && ballSpeedY >= -(timeInterval * 15)) {
-            ballSpeedY = 0;
-            ball.style.bottom = '0px';
-            updateBall(ballX, ballY, timePeriod);
-            console.log("Ball stopped bouncing");
-            while (ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval) {
-                ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, timeInterval);
-                ballX = changeBallPos(ballSpeedX, ballX);
-                updateBall(ballX, ballY, timePeriod);
-            }
-            ballStopped = true;
-            console.log("ball stopped moving");
-        }
-    }
-}
+    });
+}); };
 function changeBallSpeed(ballSpeed, resistance, timeInterval) {
     return ballSpeed - (resistance * timeInterval);
 }
 function changeBallPos(ballSpeed, ballPos) {
     return ballPos + ballSpeed;
 }
-var updateBall = function (ballX, ballY, timePeriod) { return __awaiter(_this, void 0, void 0, function () {
+var updateBall = function (ballX, ballY, timePeriod) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -139,4 +202,3 @@ var updateBall = function (ballX, ballY, timePeriod) { return __awaiter(_this, v
         }
     });
 }); };
-bouncingBall();

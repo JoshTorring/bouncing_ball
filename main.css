@@ -1,8 +1,11 @@
 * {
     margin: 0;
     padding: 0;
-    --ballSize: 80px;
     cursor: auto;
+}
+
+:root {
+    --ballSize: 80px;
 }
 
 .floor{
@@ -16,11 +19,14 @@
 }
 
 .ball {
-    display: none;
+    bottom: calc(var(--ballSize)/2);
+    left: 50vw;
+    display: block;
     position: absolute;
     height: var(--ballSize);
     width: var(--ballSize);
     background-color: blue;
     border-radius: 50%;
     cursor: url('./open_cursor.png'), auto;
+    transform: translate(-50%, 50%);
 }
