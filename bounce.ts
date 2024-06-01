@@ -51,7 +51,6 @@ const bouncingBall = async () => {
     const timeInterval: number = 0.1;
     const timePeriod: number = timeInterval*100;
 
-    let ballMomentum:number = 0;
     let ballSpeedY: number = 0;
     let ballSpeedX:number = 5;
     let ballX:number = 100;
@@ -66,18 +65,21 @@ const bouncingBall = async () => {
     ball.style.display = 'block';
     while (!ballStopped) {
         if (ballY > 0) {
-            ballMoveY(ballY, ballSpeedY, gravity, timeInterval);
-            ballMoveX(ballX, ballSpeedX, dragAir, timeInterval);
+            ballSpeedY = changeBallSpeed(ballSpeedY, gravity, timeInterval);
+            ballY = changeBallPos(ballSpeedY, ballY);
+            ballSpeedX = changeBallSpeed(ballSpeedX, dragAir, timeInterval);
+            ballX = changeBallPos(ballSpeedX, ballX);
             await sleep(timePeriod);
         } else if (ballY <= 0 && ballSpeedY < -(timeInterval*15)) {
             ballSpeedY = -ballSpeedY*ballDampening
             console.log("ball bounced!")
-            ballMoveY(ballY, ballSpeedY, gravity, timeInterval);
-            ballMoveX(ballX, ballSpeedX, dragGround, timeInterval);
-            await sleep(timePeriod);
-            ballMoveY(ballY, ballSpeedY, gravity, timeInterval);
-            ballMoveX(ballX, ballSpeedX, dragGround, timeInterval);
-            await sleep(timePeriod);
+            for (let i = 0; i < 2; i++) {
+                ballSpeedY = changeBallSpeed(ballSpeedY, gravity, timeInterval);
+                ballY = changeBallPos(ballSpeedY, ballY);
+                ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, timeInterval);
+                ballX = changeBallPos(ballSpeedX, ballX);
+                await sleep(timePeriod);
+            }
         } else if (ballY <= 0 && ballSpeedY >= -(timeInterval*15)) {
             ballSpeedY = 0;
             ball.style.bottom = '0px';
@@ -86,7 +88,8 @@ const bouncingBall = async () => {
                 console.log("Ball stopped Bouncing")
             }
             while (ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval) {
-                ballMoveX(ballX, ballSpeedX, dragGround, timeInterval);
+                ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, timeInterval);
+                ballX = changeBallPos(ballSpeedX, ballX);
                 await sleep(timePeriod);
             }
             ballStopped = true;
@@ -95,13 +98,20 @@ const bouncingBall = async () => {
     }
 }
 
-
 function ballMoveY(ballY: number, ballSpeedY: number, gravity: number, timeInterval: number):void {
     ballSpeedY = ballSpeedY - (gravity * timeInterval);
     ballY = ballY + ballSpeedY;
     ball.style.bottom = `${ballY}px`
     console.log("ball Y speed:", ballSpeedY);
     console.log("ball moved to:", ballY);
+}
+
+function changeBallSpeed (ballSpeed: number, resistance: number, timeInterval: number):number {
+    return ballSpeed - (resistance * timeInterval)
+}
+
+function changeBallPos (ballSpeed: number, ballPos: number):number {
+    return ballPos + ballSpeed
 }
 
 function ballMoveX(ballX: number, ballSpeedX: number, drag: number, timeInterval: number):void {
