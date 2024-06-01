@@ -42,13 +42,13 @@ function ballDrag () {
 }
 
 
-const bouncingBall = async () => {
+function bouncingBall () {
 
     const gravity:number = 9.81;
     const dragAir:number = 0.1;
     const dragGround: number = 1;
     const ballDampening:number = 0.8;
-    const timeInterval: number = 0.1;
+    const timeInterval: number = 0.2;
     const timePeriod: number = timeInterval*100;
 
     let ballSpeedY: number = 0;
@@ -61,7 +61,7 @@ const bouncingBall = async () => {
     ball.style.left = `${ballX}px`;
     ball.style.display = 'none';
 
-    await sleep(1000);
+    updateBall(ballX, ballY, timePeriod);
     ball.style.display = 'block';
     while (!ballStopped) {
         if (ballY > 0) {
@@ -69,7 +69,9 @@ const bouncingBall = async () => {
             ballY = changeBallPos(ballSpeedY, ballY);
             ballSpeedX = changeBallSpeed(ballSpeedX, dragAir, timeInterval);
             ballX = changeBallPos(ballSpeedX, ballX);
-            await sleep(timePeriod);
+            updateBall(ballX, ballY, timePeriod);
+            console.log("New Ball Position:", ballX, ballY);
+            console.log("New Ball Velocity:" + (Math.sqrt((Math.pow(ballSpeedX, 2)+Math.pow(ballSpeedY, 2)))).toString())
         } else if (ballY <= 0 && ballSpeedY < -(timeInterval*15)) {
             ballSpeedY = -ballSpeedY*ballDampening
             console.log("ball bounced!")
@@ -78,32 +80,23 @@ const bouncingBall = async () => {
                 ballY = changeBallPos(ballSpeedY, ballY);
                 ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, timeInterval);
                 ballX = changeBallPos(ballSpeedX, ballX);
-                await sleep(timePeriod);
+                updateBall(ballX, ballY, timePeriod);
             }
         } else if (ballY <= 0 && ballSpeedY >= -(timeInterval*15)) {
             ballSpeedY = 0;
             ball.style.bottom = '0px';
-            await sleep(timePeriod);
-            for (let j = 0; j < 20; j++) {
-                console.log("Ball stopped Bouncing")
-            }
+            updateBall(ballX, ballY, timePeriod);
+            console.log("Ball stopped bouncing")
+
             while (ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval) {
                 ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, timeInterval);
                 ballX = changeBallPos(ballSpeedX, ballX);
-                await sleep(timePeriod);
+                updateBall(ballX, ballY, timePeriod);
             }
             ballStopped = true;
-            console.log("ball stopped!")
+            console.log("ball stopped moving")
         }
     }
-}
-
-function ballMoveY(ballY: number, ballSpeedY: number, gravity: number, timeInterval: number):void {
-    ballSpeedY = ballSpeedY - (gravity * timeInterval);
-    ballY = ballY + ballSpeedY;
-    ball.style.bottom = `${ballY}px`
-    console.log("ball Y speed:", ballSpeedY);
-    console.log("ball moved to:", ballY);
 }
 
 function changeBallSpeed (ballSpeed: number, resistance: number, timeInterval: number):number {
@@ -114,15 +107,12 @@ function changeBallPos (ballSpeed: number, ballPos: number):number {
     return ballPos + ballSpeed
 }
 
-function ballMoveX(ballX: number, ballSpeedX: number, drag: number, timeInterval: number):void {
-    if (ballSpeedX < -timeInterval || ballSpeedX > timeInterval) {
-        ballSpeedX = ballSpeedX - (drag * timeInterval);
-        ballX = ballX + ballSpeedX;
-        ball.style.left = `${ballX}px`
-        console.log("ball X speed:", ballSpeedX);
-        console.log("ball moved to:", ballX);
-    }
-}
+const updateBall = async (ballX: number, ballY: number, timePeriod: number) => {
 
+    ball.style.left = `${ballX}px`;
+    ball.style.bottom = `${ballY}px`;
+
+    await sleep(timePeriod);
+}
 
 bouncingBall();
