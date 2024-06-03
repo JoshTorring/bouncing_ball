@@ -53,12 +53,12 @@ document.addEventListener("mouseup", (event) => {
     mouseDown = false;
     if (!ballBouncing && mouseOnBall) {
         ballBouncing = true;
-        //let speed = ballPosTime[9].timestamp - ballPosTime[0].timestamp;
+        let speed = ballPosTime[9].timestamp - ballPosTime[0].timestamp;
         let xDiff = ballPosTime[9].x - ballPosTime[0].x;
         let yDiff = ballPosTime[9].y - ballPosTime[0].y;
 
-        ballSpeedX = xDiff/10;
-        ballSpeedY = yDiff/10;
+        ballSpeedX = xDiff/speed*8;
+        ballSpeedY = yDiff/speed*8;
 
         bouncingBall(mouseX, 600-mouseY, ballSpeedX, ballSpeedY);
     }
@@ -95,8 +95,8 @@ const bouncingBall = async (ballX: number, ballY: number, ballSpeedX: number, ba
 
     const gravity:number = 9.81;
     const dragAir:number = 0.1;
-    const dragGround: number = 2;
-    const ballDampening:number = 0.8;
+    const dragGround: number = 1;
+    const ballDampening:number = 0.9;
 
     let ballStopped: boolean = false;
 
@@ -135,7 +135,7 @@ const bouncingBall = async (ballX: number, ballY: number, ballSpeedX: number, ba
             while (ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval) {
                 ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, 'x', ballX);
                 ballX = changeBallPos(ballSpeedX, ballX);
-                await updateBall(ballX, ballY);
+                await updateBall(ballX);
             }
 
             ballStopped = true;
@@ -155,14 +155,14 @@ function changeBallSpeed (ballSpeed: number, resistance: number, vector: string,
     if (ballPos <= 0 + (ballSize/2) && vector == 'x') {
         console.log("changed direction from - to +")
         mouseX = (1+(ballSize/2))
-        updateBall(1+(ballSize/2), 1);
-        return ballSpeed = (ballSpeed * -1) - resistance;
+        updateBall(1+(ballSize/2));
+        return ballSpeed = (ballSpeed * -1) - (resistance*timeInterval);
 
     } else if (ballPos >= windowWidth-(ballSize/2) && vector == 'x') {
         console.log("changed direction from + to -")
         mouseX = (windowWidth-(ballSize/2)-1)
-        updateBall(windowWidth-(ballSize/2)-1, 1);
-        return ballSpeed = (ballSpeed * -1) + resistance;
+        updateBall(windowWidth-(ballSize/2)-1);
+        return ballSpeed = (ballSpeed * -1) + (resistance*timeInterval);
 
     }
 
@@ -181,12 +181,10 @@ const updateBall = async (ballX: number, ballY?: number) => {
     ball.style.left = `${ballX}px`;
     if (ballY) {
         ball.style.bottom = `${ballY}px`;
-    }
-    if (typeof ballY == undefined) {
-        await sleep(timePeriod*1.5);
-        console.log("only checking x")
-    } else {
         await sleep(timePeriod);
         console.log("checking x+y")
+    } else {
+        await sleep(timePeriod*1);
+        console.log("only checking x")
     }
 }

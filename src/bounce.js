@@ -84,11 +84,11 @@ document.addEventListener("mouseup", function (event) {
     mouseDown = false;
     if (!ballBouncing && mouseOnBall) {
         ballBouncing = true;
-        //let speed = ballPosTime[9].timestamp - ballPosTime[0].timestamp;
+        var speed = ballPosTime[9].timestamp - ballPosTime[0].timestamp;
         var xDiff = ballPosTime[9].x - ballPosTime[0].x;
         var yDiff = ballPosTime[9].y - ballPosTime[0].y;
-        ballSpeedX = xDiff / 10;
-        ballSpeedY = yDiff / 10;
+        ballSpeedX = xDiff / speed * 8;
+        ballSpeedY = yDiff / speed * 8;
         bouncingBall(mouseX, 600 - mouseY, ballSpeedX, ballSpeedY);
     }
 });
@@ -131,8 +131,8 @@ var bouncingBall = function (ballX, ballY, ballSpeedX, ballSpeedY) { return __aw
             case 0:
                 gravity = 9.81;
                 dragAir = 0.1;
-                dragGround = 2;
-                ballDampening = 0.8;
+                dragGround = 1;
+                ballDampening = 0.9;
                 ballStopped = false;
                 ball.style.bottom = "".concat(ballY, "px");
                 ball.style.left = "".concat(ballX, "px");
@@ -183,7 +183,7 @@ var bouncingBall = function (ballX, ballY, ballSpeedX, ballSpeedY) { return __aw
                 if (!(ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval)) return [3 /*break*/, 11];
                 ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, 'x', ballX);
                 ballX = changeBallPos(ballSpeedX, ballX);
-                return [4 /*yield*/, updateBall(ballX, ballY)];
+                return [4 /*yield*/, updateBall(ballX)];
             case 10:
                 _a.sent();
                 return [3 /*break*/, 9];
@@ -205,14 +205,14 @@ function changeBallSpeed(ballSpeed, resistance, vector, ballPos) {
     if (ballPos <= 0 + (ballSize / 2) && vector == 'x') {
         console.log("changed direction from - to +");
         mouseX = (1 + (ballSize / 2));
-        updateBall(1 + (ballSize / 2), 1);
-        return ballSpeed = (ballSpeed * -1) - resistance;
+        updateBall(1 + (ballSize / 2));
+        return ballSpeed = (ballSpeed * -1) - (resistance * timeInterval);
     }
     else if (ballPos >= windowWidth - (ballSize / 2) && vector == 'x') {
         console.log("changed direction from + to -");
         mouseX = (windowWidth - (ballSize / 2) - 1);
-        updateBall(windowWidth - (ballSize / 2) - 1, 1);
-        return ballSpeed = (ballSpeed * -1) + resistance;
+        updateBall(windowWidth - (ballSize / 2) - 1);
+        return ballSpeed = (ballSpeed * -1) + (resistance * timeInterval);
     }
     if (ballSpeed <= 0 && vector == 'x') {
         return ballSpeed - (-resistance * timeInterval);
@@ -229,19 +229,17 @@ var updateBall = function (ballX, ballY) { return __awaiter(_this, void 0, void 
         switch (_a.label) {
             case 0:
                 ball.style.left = "".concat(ballX, "px");
-                if (ballY) {
-                    ball.style.bottom = "".concat(ballY, "px");
-                }
-                if (!(typeof ballY == undefined)) return [3 /*break*/, 2];
-                return [4 /*yield*/, sleep(timePeriod * 1.5)];
+                if (!ballY) return [3 /*break*/, 2];
+                ball.style.bottom = "".concat(ballY, "px");
+                return [4 /*yield*/, sleep(timePeriod)];
             case 1:
                 _a.sent();
-                console.log("only checking x");
+                console.log("checking x+y");
                 return [3 /*break*/, 4];
-            case 2: return [4 /*yield*/, sleep(timePeriod)];
+            case 2: return [4 /*yield*/, sleep(timePeriod * 1)];
             case 3:
                 _a.sent();
-                console.log("checking x+y");
+                console.log("only checking x");
                 _a.label = 4;
             case 4: return [2 /*return*/];
         }
