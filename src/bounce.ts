@@ -53,7 +53,7 @@ document.addEventListener("mouseup", (event) => {
     mouseDown = false;
     if (!ballBouncing && mouseOnBall) {
         ballBouncing = true;
-        let speed = ballPosTime[9].timestamp - ballPosTime[0].timestamp;
+        //let speed = ballPosTime[9].timestamp - ballPosTime[0].timestamp;
         let xDiff = ballPosTime[9].x - ballPosTime[0].x;
         let yDiff = ballPosTime[9].y - ballPosTime[0].y;
 
@@ -95,7 +95,7 @@ const bouncingBall = async (ballX: number, ballY: number, ballSpeedX: number, ba
 
     const gravity:number = 9.81;
     const dragAir:number = 0.1;
-    const dragGround: number = 1;
+    const dragGround: number = 2;
     const ballDampening:number = 0.8;
 
     let ballStopped: boolean = false;
@@ -112,7 +112,7 @@ const bouncingBall = async (ballX: number, ballY: number, ballSpeedX: number, ba
                 ballX = changeBallPos(ballSpeedX, ballX);
             }
             
-            await updateBall(ballX, 0, ballY);
+            await updateBall(ballX, ballY);
             // console.log("New Ball Position:", ballX, ballY);
         } else if (ballY <= (ballSize/2) && ballSpeedY < -(timeInterval*15)) {
             ballSpeedY = -ballSpeedY*ballDampening
@@ -124,18 +124,18 @@ const bouncingBall = async (ballX: number, ballY: number, ballSpeedX: number, ba
                     ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, 'x', ballX);
                     ballX = changeBallPos(ballSpeedX, ballX);
                 }
-                await updateBall(ballX, 0, ballY);
+                await updateBall(ballX, ballY);
             }
         } else if (ballY <= (ballSize/2) && ballSpeedY >= -(timeInterval*15)) {
             ballSpeedY = 0;
             ball.style.bottom = '0px';
-            updateBall(ballX, 0, ballY);
+            updateBall(ballX, ballY);
             console.log("Ball stopped bouncing")
 
             while (ballSpeedX <= -timeInterval || ballSpeedX >= timeInterval) {
                 ballSpeedX = changeBallSpeed(ballSpeedX, dragGround, 'x', ballX);
                 ballX = changeBallPos(ballSpeedX, ballX);
-                await updateBall(ballX, 1, ballY);
+                await updateBall(ballX, ballY);
             }
 
             ballStopped = true;
@@ -177,12 +177,12 @@ function changeBallPos (ballSpeed: number, ballPos: number):number {
     return ballPos + ballSpeed
 }
 
-const updateBall = async (ballX: number, xOnly:number, ballY?: number) => {
+const updateBall = async (ballX: number, ballY?: number) => {
     ball.style.left = `${ballX}px`;
     if (ballY) {
         ball.style.bottom = `${ballY}px`;
     }
-    if (xOnly == 1) {
+    if (typeof ballY == undefined) {
         await sleep(timePeriod*1.5);
         console.log("only checking x")
     } else {
